@@ -1,12 +1,16 @@
 // estrutura apenas para interface do jogo
 
-
 #ifndef JOGO_H
 #define JOGO_H
 
 #include <stdbool.h>
+#include "mapa.h"
 
-typedef struct Jogo Jogo;
+typedef struct Jogo{
+    Mapa* mapa_atual;
+    Nave nave_atual;
+    bool analise; // Indica se a análise detalhada está ativada
+} Jogo;
 
 Jogo* Criar_Jogo();
 void Destruir_Jogo(Jogo* jogo);
