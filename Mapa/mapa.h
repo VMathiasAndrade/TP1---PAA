@@ -4,24 +4,23 @@
 #include <stdbool.h>
 
 typedef struct {
-    int durabilidade_inicial; // D
-    int durabilidade_decr; // D'
-    int durabilidade_acr; // A
+    int durabilidadeAtual; // D
+    int retiraDurabilidae; // D'
+    int adDurabilidade; // A
+    int posicao[2];
 } Nave;
 
 typedef struct{
-    int altura;
-    int largura;
-    char **grid;
-    int linha_inicial;
-    int coluna_inicial;
+    int altura, largura;
+    int linhaAtual, colulaAtual;
     int total_pecas;
+    char** grid;
+    bool** visitados;
 } Mapa;
 
 Mapa* Criar_Mapa();
 void Destruir_Mapa(Mapa* mapa);
 bool Carregar_Mapa_Arquivo(const char* nome_arquivo, Mapa* mapa, Nave* nave);
-
 
 int getAltura(const Mapa* mapa);
 int getLargura(const Mapa* mapa);

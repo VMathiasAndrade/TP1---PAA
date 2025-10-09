@@ -90,3 +90,19 @@ void imprimirResultado(int status, int chamadas_recursivas, int max_recursao, bo
         printf("Máxima Profundidade de Recursão: %d\n", max_recursao);
     }
 }
+
+bool caminhoValido(int i, int j, Jogo* jogo)
+{
+    int altura = jogo->mapa_atual->altura;
+    int largura = jogo->mapa_atual->largura;
+
+    return (i >= 0 && i < altura && j >= 0 && j < largura);
+}
+
+void movimentar(Jogo* jogo)
+
+
+{
+    
+    
+}

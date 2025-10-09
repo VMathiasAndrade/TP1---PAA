@@ -111,7 +111,14 @@ if __name__ == "__main__":
         altura=9,
         largura=15,
         num_pecas=5,
-        nome_arquivo="mapa1.txt"
+        nome_arquivo="mapa_teste1.txt"
+    )
+
+    gerar_arquivo_mapa(
+        altura=10,
+        largura=10,
+        num_pecas=7,
+        nome_arquivo="mapa_teste2.txt"
     )
     
     print("\nGerando um mapa maior e mais difícil...")
@@ -122,5 +129,5 @@ if __name__ == "__main__":
         durabilidade_base=(40, 50), # Mais apertado
         decremento_base=(5, 5),     # Consistente
         acrescimo_base=(10, 15),    # Menos recompensador
-        nome_arquivo="mapa_dificil.txt"
+        nome_arquivo="mapa_teste3.txt"
     )

@@ -11,4 +11,4 @@ $(TARGET): $(OBJ)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	del /Q $(OBJ) $(TARGET)
+	rm -f $(OBJ) $(TARGET)
