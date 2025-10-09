@@ -5,7 +5,7 @@
 
 typedef struct {
     int durabilidadeAtual; // D
-    int retiraDurabilidae; // D'
+    int retiraDurabilidade; // D'
     int adDurabilidade; // A
     int posicao[2];
 } Nave;
@@ -21,7 +21,6 @@ typedef struct{
 Mapa* Criar_Mapa();
 void Destruir_Mapa(Mapa* mapa);
 bool Carregar_Mapa_Arquivo(const char* nome_arquivo, Mapa* mapa, Nave* nave);
-
 int getAltura(const Mapa* mapa);
 int getLargura(const Mapa* mapa);
 char getElemento(const Mapa* mapa, int linha, int coluna);

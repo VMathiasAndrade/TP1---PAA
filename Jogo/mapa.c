@@ -34,11 +34,11 @@ bool Carregar_Mapa_Arquivo(const char* nome_arquivo, Mapa* mapa, Nave* nave) {
         printf("Erro: Não foi possível abrir o arquivo '%s'.\n", nome_arquivo);
         return false;
     }
-    fscanf(arquivo, "%d %d %d", &nave->durabilidadeAtual, &nave->retiraDurabilidae, &nave->adDurabilidade);
+    fscanf(arquivo, "%d %d %d", &nave->durabilidadeAtual, &nave->retiraDurabilidade, &nave->adDurabilidade);
     fscanf(arquivo, "%d %d", &mapa->altura, &mapa->largura);
     // Aloca memória para as linhas do mapa
     mapa->grid = (char **)malloc(mapa->altura * sizeof(char *));
-    mapa->visitados = (bool**)malloc(mapa->altura * sizeof(bool));
+    mapa->visitados = (bool**)malloc(mapa->altura * sizeof(bool*));
     for (int i = 0; i < mapa->altura; i++) {
         // Aloca memória para as colunas de cada linha (+2 para o '\n' e '\0')
         mapa->grid[i] = (char *)malloc((mapa->largura + 2) * sizeof(char));
@@ -59,6 +59,13 @@ bool Carregar_Mapa_Arquivo(const char* nome_arquivo, Mapa* mapa, Nave* nave) {
             }
         }
     }
+
+    for (int i = 0; i < mapa->altura; i++) {
+        for (int j = 0; j < mapa->largura; j++) {
+            mapa->visitados[i][j] = false;
+        }
+    }
+    
     fclose(arquivo);
     // testa para ver se o map foi carregado, pode apagar depois
     printf("Mapa '%s' carregado com sucesso!\n", nome_arquivo);
