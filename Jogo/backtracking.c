@@ -4,116 +4,188 @@
 
 #include "backtracking.h"
 
-bool caminhoValido(int i, int j, Jogo* jogo)
-{
-    int altura = jogo->mapa_atual->altura;
-    int largura = jogo->mapa_atual->largura;
+bool movimentar(Jogo* jogo, int linha, int coluna, int profundidade_atual) {
+    jogo->chamadas_recursivas++;
 
-    return (i >= 0 && i < altura && j >= 0 && j < largura);
-}
-
-void movimentar(Jogo* jogo) {
+    if (profundidade_atual > jogo->max_recursao) {
+        jogo->max_recursao = profundidade_atual;
+    }
     
-    int proxLinha = jogo->mapa_atual->linhaAtual;
-    int proxColuna = jogo->mapa_atual->colulaAtual + 1;
+    Mapa* mapa = jogo->mapa_atual;
+    Nave* nave = &(jogo->nave_atual);
 
-    if(caminhoValido(proxLinha, proxColuna, jogo)) {
-        char elemento = jogo->mapa_atual->grid[proxLinha][proxColuna];
-        if (elemento != '.') {
-            if (!(jogo->mapa_atual->visitados[proxLinha][proxColuna])) {
-                jogo->mapa_atual->colulaAtual += 1;
-                jogo->nave_atual.durabilidadeAtual -= jogo->nave_atual.retiraDurabilidade;
-                jogo->mapa_atual->visitados[proxLinha][proxColuna] = true;
-                
-                if (jogo->nave_atual.durabilidadeAtual >= 0 || !(jogo->mapa_atual->grid[proxLinha][proxColuna] == 'F')) {
-                    movimentar(jogo);
-                }
-            }
+    if (nave->durabilidadeAtual <= 0) {
+        return false;
+    }
+
+    jogo->caminhoSolucao[jogo->tamanho_caminho][0] = linha;
+    jogo->caminhoSolucao[jogo->tamanho_caminho][1] = coluna;
+    jogo->tamanho_caminho++;
+
+    if (mapa->grid[linha][coluna] == 'F') {
+        for (int i = 0; i < jogo->tamanho_caminho; i++) {
+            printf("Linha: %d, Coluna: %d; D: %d, pecas restantes: %d\n", jogo->caminhoSolucao[i][0], jogo->caminhoSolucao[i][1], nave->durabilidadeAtual, nave->pecasRestantes);
+        }
+        return (nave->pecasColetadas == mapa->total_pecas) ? 2 : 1;
+    }
+
+    mapa->visitados[linha][coluna] = true;
+
+    if (mapa->grid[linha][coluna] == 'P') {
+        nave->pecasColetadas++;
+        nave->durabilidadeAtual += nave->adDurabilidade;
+        nave->pecasRestantes = mapa->total_pecas - nave->pecasColetadas;
+    }
+
+    if (movimentarDireita(linha, coluna, mapa)) {
+        if (nave->pecasColetadas != mapa->total_pecas){
+            nave->durabilidadeAtual -= nave->retiraDurabilidade;
+        }
+        if (movimentar(jogo, linha, coluna + 1, profundidade_atual + 1)) {
+            return true;
+        }
+        if (nave->pecasColetadas != mapa->total_pecas){
+            nave->durabilidadeAtual += nave->retiraDurabilidade;
+        }
+    }
+    if (movimentarEsquerda(linha, coluna, mapa)) {
+        if (nave->pecasColetadas != mapa->total_pecas){
+            nave->durabilidadeAtual -= nave->retiraDurabilidade;
+        }
+        if (movimentar(jogo, linha, coluna - 1, profundidade_atual + 1)) {
+            return true;
+        }
+        if (nave->pecasColetadas != mapa->total_pecas){
+            nave->durabilidadeAtual += nave->retiraDurabilidade;
+        }
+    }
+    if (movimentarCima(linha, coluna, mapa)) {
+        if (nave->pecasColetadas != mapa->total_pecas){
+            nave->durabilidadeAtual -= nave->retiraDurabilidade;
+        }
+        if (movimentar(jogo, linha - 1, coluna, profundidade_atual + 1)) {
+            return true;
+        }
+        if (nave->pecasColetadas != mapa->total_pecas){
+            nave->durabilidadeAtual += nave->retiraDurabilidade;
+        }
+    }
+    if (movimentarBaixo(linha, coluna, mapa)) {
+        if (nave->pecasColetadas != mapa->total_pecas){
+            nave->durabilidadeAtual -= nave->retiraDurabilidade;
+        }
+        if (movimentar(jogo, linha + 1, coluna, profundidade_atual + 1)) {
+            return true;
+        }
+        if (nave->pecasColetadas != mapa->total_pecas){
+            nave->durabilidadeAtual += nave->retiraDurabilidade;
         }
     }
 
-    int proxLinha = jogo->mapa_atual->linhaAtual;
-    int proxColuna = jogo->mapa_atual->colulaAtual - 1;
-
-    if(caminhoValido(proxLinha, proxColuna, jogo)) {
-        char elemento = jogo->mapa_atual->grid[proxLinha][proxColuna];
-        if (elemento != '.') {
-            if (!jogo->mapa_atual->visitados[proxLinha][proxColuna]) {
-                
-            }
-        }
-        
+    if (mapa->grid[linha][coluna] == 'P') {
+        nave->pecasColetadas--;
+        nave->durabilidadeAtual -= nave->adDurabilidade;
+        nave->pecasRestantes += 1;
     }
 
-    int proxLinha = jogo->mapa_atual->linhaAtual + 1;
-    int proxColuna = jogo->mapa_atual->colulaAtual;
-
-    if(caminhoValido(proxLinha, proxColuna, jogo)) {
-        char elemento = jogo->mapa_atual->grid[proxLinha][proxColuna];
-        if (elemento != '.') {
-            if (!jogo->mapa_atual->visitados[proxLinha][proxColuna]) {
-                
-            }
-        }
-        
-    }
-
-    int proxLinha = jogo->mapa_atual->linhaAtual - 1;
-    int proxColuna = jogo->mapa_atual->colulaAtual;
-
-    if(caminhoValido(proxLinha, proxColuna, jogo)) {
-        char elemento = jogo->mapa_atual->grid[proxLinha][proxColuna];
-        if (elemento != '.') {
-            if (!jogo->mapa_atual->visitados[proxLinha][proxColuna]) {
-                
-            }
-        }
-        
-    }
-}
-
-bool movimentar(Jogo* jogo, int linha, int coluna, int pecas_coletadas, int profundidade_atual) {
-    // 1. Contabilizar chamadas recursivas e profundidade (Modo Análise)
-    // chamadas_recursivas++;
-    // if (profundidade_atual > max_recursao) max_recursao = profundidade_atual;
-
-    // 2. Verificar Casos Base de Falha
-    if (jogo->nave_atual.durabilidadeAtual <= 0) {
-        return false; // Fim do caminho, sem durabilidade
-    }
-
-    // 3. Verificar Caso Base de Sucesso
-    if (jogo->mapa_atual->grid[linha][coluna] == 'F') {
-        imprimirPassos();
-        // Imprimir mensagem final de sucesso
-        return true;
-    }
-
-    // 4. Marcar a posição atual como visitada
-    jogo->mapa_atual->visitados[linha][coluna] = true;
-    
-    // 5. Atualizar estado (coletar peça, etc.)
-    // ...
-
-    // Imprimir o passo atual
-    imprimirPassos(linha, coluna, jogo->nave_atual.durabilidadeAtual, total_pecas - pecas_coletadas);
-
-    // 6. Tentar os próximos movimentos (Norte, Sul, Leste, Oeste)
-    // Verifique se o movimento é válido (dentro do mapa, não visitado, caminho permite)
-    
-    // Exemplo para mover para a DIREITA:
-    if (movimentoValidoParaDireita(linha, coluna, jogo)) {
-        // Salvar estado atual (durabilidade, peças) para o backtracking
-        // Atualizar estado para o próximo passo (diminuir durabilidade, etc.)
-        if (movimentar(jogo, linha, coluna + 1, pecas_coletadas, profundidade_atual + 1)) {
-            return true; // Se o caminho deu certo, propague o sucesso
-        }
-        // Se chegou aqui, o caminho falhou. RESTAURE o estado (backtrack).
-    }
-
-    // ... Fazer o mesmo para os outros movimentos (Esquerda, Cima, Baixo) ...
-
-    // 7. Se nenhum movimento a partir daqui levou à solução, desmarque e retorne falha
-    jogo->mapa_atual->visitados[linha][coluna] = false; // Backtrack
+    jogo->tamanho_caminho--;
+    mapa->visitados[linha][coluna] = false;
     return false;
+}
+
+bool movimentarDireita(int linha, int coluna, Mapa* mapa) {
+
+    char posAtual = mapa->grid[linha][coluna];
+    if (posAtual != '-' && posAtual != '+' && posAtual != 'X' && posAtual != 'P') {
+        return false;
+    }
+
+    int proxColuna = coluna + 1;
+    if (proxColuna >= mapa->largura) {
+        return false;
+    }
+
+    char posDestino = mapa->grid[linha][proxColuna];
+    if (posDestino == '.') {
+        return false;
+    }
+
+    if (mapa->visitados[linha][proxColuna]) {
+        return false;
+    }
+
+    return true;
+}
+
+bool movimentarEsquerda(int linha, int coluna, Mapa* mapa) {
+
+    char posAtual = mapa->grid[linha][coluna];
+    if (posAtual != '-' && posAtual != '+' && posAtual != 'X' && posAtual != 'P') {
+        return false;
+    }
+
+    int proxColuna = coluna - 1;
+    if (proxColuna < 0) {
+        return false;
+    }
+
+    char posDestino = mapa->grid[linha][proxColuna];
+    if (posDestino == '.') {
+        return false;
+    }
+
+    if (mapa->visitados[linha][proxColuna]) {
+        return false;
+    }
+
+    return true;
+}
+
+bool movimentarCima(int linha, int coluna, Mapa* mapa) {
+
+    char posAtual = mapa->grid[linha][coluna];
+    if (posAtual != '|' && posAtual != '+' && posAtual != 'X' && posAtual != 'P') {
+        return false;
+    }
+
+    int proxLinha = linha - 1;
+    if (proxLinha < 0) {
+        return false;
+    }
+
+    char posDestino = mapa->grid[proxLinha][coluna];
+    if (posDestino == '.') {
+        return false;
+    }
+
+    if (mapa->visitados[proxLinha][coluna]) {
+        return false;
+    }
+
+    return true;
+}
+
+
+bool movimentarBaixo(int linha, int coluna, Mapa* mapa) {
+
+    char posAtual = mapa->grid[linha][coluna];
+    if (posAtual != '|' && posAtual != '+' && posAtual != 'X' && posAtual != 'P') {
+        return false;
+    }
+
+    int proxLinha = linha + 1;
+    if (proxLinha >= mapa->altura) {
+        return false;
+    }
+
+    char posDestino = mapa->grid[proxLinha][coluna];
+    if (posDestino == '.') {
+        return false;
+    }
+
+    if (mapa->visitados[proxLinha][coluna]) {
+        return false;
+    }
+
+    return true;
 }

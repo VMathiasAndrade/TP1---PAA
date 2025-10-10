@@ -3,7 +3,11 @@
 
 #include "Jogo.h"
 
-bool caminhoValido(Jogo* jogo);
-void movimentar(Jogo* jogo); 
+bool movimentar(Jogo* jogo, int linha, int coluna, int profundidade_atual);
+
+bool movimentarDireita(int linha, int coluna, Mapa* mapa);
+bool movimentarEsquerda(int linha, int coluna, Mapa* mapa);
+bool movimentarCima(int linha, int coluna, Mapa* mapa);
+bool movimentarBaixo(int linha, int coluna, Mapa* mapa);
 
 #endif

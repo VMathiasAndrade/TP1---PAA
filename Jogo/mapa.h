@@ -7,12 +7,13 @@ typedef struct {
     int durabilidadeAtual; // D
     int retiraDurabilidade; // D'
     int adDurabilidade; // A
-    int posicao[2];
+    int pecasColetadas;
+    int pecasRestantes;
 } Nave;
 
 typedef struct{
     int altura, largura;
-    int linhaAtual, colulaAtual;
+    int linhaAtual, colunaAtual;
     int total_pecas;
     char** grid;
     bool** visitados;

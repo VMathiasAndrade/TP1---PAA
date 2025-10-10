@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall -Wextra -g
-SRC=$(wildcard *.c)
+SRC=$(wildcard *.c) $(wildcard Jogo/*.c)
 OBJ=$(SRC:.c=.o)
 TARGET=app.exe
 
