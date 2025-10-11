@@ -5,14 +5,19 @@
 #include <stdbool.h>
 #include "mapa.h"
 
-typedef struct Jogo {
-    Mapa* mapa_atual;
-    Nave nave_atual;
+typedef struct Dados {
     int chamadas_recursivas;
     int max_recursao;
+}Dados;
+
+
+typedef struct Jogo {
+    Mapa* mapa_atual;
+    Nave* nave_atual;
+    Dados* dados;
     int** caminhoSolucao;
-    int tamanhoAtual;
     int** caminhoFinal;
+    int tamanhoAtual;
     int tamanhoFinal;
 } Jogo;
 

@@ -6,14 +6,14 @@
 #include "backtracking.h"
 
 int movimentar(Jogo* jogo, int linha, int coluna, int profundidade_atual) {
-    jogo->chamadas_recursivas++;
+    jogo->dados->chamadas_recursivas++;
 
-    if (profundidade_atual > jogo->max_recursao) {
-        jogo->max_recursao = profundidade_atual;
+    if (profundidade_atual > jogo->dados->max_recursao) {
+        jogo->dados->max_recursao = profundidade_atual;
     }
     
     Mapa* mapa = jogo->mapa_atual;
-    Nave* nave = &(jogo->nave_atual);
+    Nave* nave = jogo->nave_atual;
 
     int durabilidade_anterior = nave->durabilidadeAtual;
     int pecas_coletadas_anterior = nave->pecasColetadas;
@@ -48,7 +48,6 @@ int movimentar(Jogo* jogo, int linha, int coluna, int profundidade_atual) {
         copiarCaminho(jogo);
         return (nave->pecasColetadas == mapa->total_pecas) ? 2 : 1;
     }
-
     
     if (movimentarDireita(linha, coluna, mapa)) {
         if (nave->pecasColetadas != mapa->total_pecas){

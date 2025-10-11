@@ -4,11 +4,13 @@
 #include "backtracking.h"
 
 Jogo *Criar_Jogo() {
-    Jogo *jogo = (Jogo *)malloc(sizeof(Jogo));
+    Jogo *jogo = (Jogo*)malloc(sizeof(Jogo));
     if (jogo == NULL){
         exit(1);
     }
 
+    jogo->nave_atual = (Nave*)malloc(sizeof(Nave));
+    jogo->dados = (Dados*)malloc(sizeof(Dados));
     jogo->mapa_atual = NULL;
     jogo->caminhoSolucao = NULL;
     jogo->caminhoFinal = NULL;
@@ -19,20 +21,13 @@ Jogo *Criar_Jogo() {
 void Destruir_Jogo(Jogo *jogo) {
     if (jogo == NULL) return;
     
-    int max_passos = jogo->mapa_atual->altura * jogo->mapa_atual->largura;
-    for (int i = 0; i < max_passos; i++) {
-        free(jogo->caminhoSolucao[i]);
+    if (jogo->nave_atual != NULL) {
+        free(jogo->nave_atual);
     }
-    free(jogo->caminhoSolucao);
-
-    if (jogo->caminhoFinal != NULL) {
-        for (int i = 0; i < jogo->tamanhoFinal; i++) {
-            free(jogo->caminhoFinal[i]);
-        }
-        free(jogo->caminhoFinal);
+    if (jogo->dados != NULL) {
+        free(jogo->dados);
     }
 
-    Destruir_Mapa(jogo->mapa_atual);
     free(jogo);
 }
 
@@ -47,7 +42,7 @@ void Iniciar_Jogo(Jogo *jogo) {
 
         jogo->mapa_atual = Criar_Mapa();
         // Tenta carregar o mapa do arquivo
-        if (!Carregar_Mapa_Arquivo(nome_arquivo, jogo->mapa_atual, &jogo->nave_atual))
+        if (!Carregar_Mapa_Arquivo(nome_arquivo, jogo->mapa_atual, jogo->nave_atual))
         {
             printf("Deseja tentar carregar outro mapa? (s/n): ");
             scanf(" %c", &continuar_loop);
@@ -67,11 +62,11 @@ void Iniciar_Jogo(Jogo *jogo) {
         jogo->tamanhoAtual = 0;
         jogo->tamanhoFinal = 0;
 
-        int linha = jogo->mapa_atual->linhaAtual;
-        int coluna = jogo->mapa_atual->colunaAtual;
+        int linha = jogo->nave_atual->posicao.linha;
+        int coluna = jogo->nave_atual->posicao.coluna;
         int profundidade_atual = 0;
-        jogo->chamadas_recursivas = 0;
-        jogo->max_recursao = 0;
+        jogo->dados->chamadas_recursivas = 0;
+        jogo->dados->max_recursao = 0;
         char analisar;
 
         printf("Deseja ativar a análise detalhada? (s/n): ");
@@ -81,7 +76,22 @@ void Iniciar_Jogo(Jogo *jogo) {
 
         imprimirResultado(jogo, status, analisar);
 
-        // Libera o mapa atual
+        if (jogo->caminhoSolucao != NULL) {
+            for (int i = 0; i < max_passos; i++) {
+                free(jogo->caminhoSolucao[i]);
+            }
+            free(jogo->caminhoSolucao);
+            jogo->caminhoSolucao = NULL;
+        }
+
+        if (jogo->caminhoFinal != NULL) {
+            for (int i = 0; i < max_passos; i++) {
+                free(jogo->caminhoFinal[i]);
+            }
+            free(jogo->caminhoFinal);
+            jogo->caminhoFinal = NULL;
+        }
+        
         Destruir_Mapa(jogo->mapa_atual);
         jogo->mapa_atual = NULL;
 
@@ -118,8 +128,8 @@ void imprimirResultado(Jogo* jogo, int status, char analise) {
 
     if (analise == 's' || analise == 'S') {
         printf("\n--- Análise de Execução ---\n");
-        printf("Chamadas Recursivas: %d\n", jogo->chamadas_recursivas);
-        printf("Máxima Profundidade de Recursão: %d\n", jogo->max_recursao);
+        printf("Chamadas Recursivas: %d\n", jogo->dados->chamadas_recursivas);
+        printf("Máxima Profundidade de Recursão: %d\n", jogo->dados->max_recursao);
     }
 }
 

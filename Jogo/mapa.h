@@ -3,7 +3,14 @@
 
 #include <stdbool.h>
 
-typedef struct {
+typedef struct Posicao{
+    int linha;
+    int coluna;
+} Posicao;
+
+
+typedef struct Nave{
+    Posicao posicao;
     int durabilidadeAtual; // D
     int retiraDurabilidade; // D'
     int adDurabilidade; // A
@@ -11,9 +18,8 @@ typedef struct {
     int pecasRestantes;
 } Nave;
 
-typedef struct{
+typedef struct Mapa{
     int altura, largura;
-    int linhaAtual, colunaAtual;
     int total_pecas;
     char** grid;
     bool** visitados;
