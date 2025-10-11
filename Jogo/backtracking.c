@@ -2,9 +2,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include "Jogo.h"
 #include "backtracking.h"
 
-bool movimentar(Jogo* jogo, int linha, int coluna, int profundidade_atual) {
+int movimentar(Jogo* jogo, int linha, int coluna, int profundidade_atual) {
     jogo->chamadas_recursivas++;
 
     if (profundidade_atual > jogo->max_recursao) {
@@ -14,35 +15,46 @@ bool movimentar(Jogo* jogo, int linha, int coluna, int profundidade_atual) {
     Mapa* mapa = jogo->mapa_atual;
     Nave* nave = &(jogo->nave_atual);
 
-    if (nave->durabilidadeAtual <= 0) {
-        return false;
-    }
-
-    jogo->caminhoSolucao[jogo->tamanho_caminho][0] = linha;
-    jogo->caminhoSolucao[jogo->tamanho_caminho][1] = coluna;
-    jogo->tamanho_caminho++;
-
-    if (mapa->grid[linha][coluna] == 'F') {
-        for (int i = 0; i < jogo->tamanho_caminho; i++) {
-            printf("Linha: %d, Coluna: %d; D: %d, pecas restantes: %d\n", jogo->caminhoSolucao[i][0], jogo->caminhoSolucao[i][1], nave->durabilidadeAtual, nave->pecasRestantes);
-        }
-        return (nave->pecasColetadas == mapa->total_pecas) ? 2 : 1;
-    }
+    int durabilidade_anterior = nave->durabilidadeAtual;
+    int pecas_coletadas_anterior = nave->pecasColetadas;
+    int pecas_restantes_anterior = nave->pecasRestantes;
 
     mapa->visitados[linha][coluna] = true;
-
+    jogo->caminhoSolucao[jogo->tamanhoAtual][0] = linha;
+    jogo->caminhoSolucao[jogo->tamanhoAtual][1] = coluna;
+    jogo->caminhoSolucao[jogo->tamanhoAtual][2] = nave->durabilidadeAtual;
+    jogo->caminhoSolucao[jogo->tamanhoAtual][3] = nave->pecasRestantes;
+    jogo->tamanhoAtual++;
+    
     if (mapa->grid[linha][coluna] == 'P') {
         nave->pecasColetadas++;
         nave->durabilidadeAtual += nave->adDurabilidade;
-        nave->pecasRestantes = mapa->total_pecas - nave->pecasColetadas;
+        nave->pecasRestantes--;
+    }
+
+    if (mapa->grid[linha][coluna] == 'F') {
+        copiarCaminho(jogo);
+        return (nave->pecasColetadas == mapa->total_pecas) ? 2 : 1;
+    }
+
+    if (nave->durabilidadeAtual < 0) {
+        copiarCaminho(jogo);
+        mapa->visitados[linha][coluna] = false; 
+        jogo->tamanhoAtual--;                  
+        nave->durabilidadeAtual = durabilidade_anterior;
+        nave->pecasColetadas = pecas_coletadas_anterior;
+        nave->pecasRestantes = pecas_restantes_anterior;
+
+        return 0;
     }
 
     if (movimentarDireita(linha, coluna, mapa)) {
         if (nave->pecasColetadas != mapa->total_pecas){
             nave->durabilidadeAtual -= nave->retiraDurabilidade;
         }
-        if (movimentar(jogo, linha, coluna + 1, profundidade_atual + 1)) {
-            return true;
+        int status = movimentar(jogo, linha, coluna + 1, profundidade_atual + 1);
+        if (status != 0) {
+            return status;
         }
         if (nave->pecasColetadas != mapa->total_pecas){
             nave->durabilidadeAtual += nave->retiraDurabilidade;
@@ -52,8 +64,9 @@ bool movimentar(Jogo* jogo, int linha, int coluna, int profundidade_atual) {
         if (nave->pecasColetadas != mapa->total_pecas){
             nave->durabilidadeAtual -= nave->retiraDurabilidade;
         }
-        if (movimentar(jogo, linha, coluna - 1, profundidade_atual + 1)) {
-            return true;
+        int status = movimentar(jogo, linha, coluna - 1, profundidade_atual + 1);
+        if (status != 0) {
+            return status;
         }
         if (nave->pecasColetadas != mapa->total_pecas){
             nave->durabilidadeAtual += nave->retiraDurabilidade;
@@ -63,8 +76,9 @@ bool movimentar(Jogo* jogo, int linha, int coluna, int profundidade_atual) {
         if (nave->pecasColetadas != mapa->total_pecas){
             nave->durabilidadeAtual -= nave->retiraDurabilidade;
         }
-        if (movimentar(jogo, linha - 1, coluna, profundidade_atual + 1)) {
-            return true;
+        int status = movimentar(jogo, linha - 1, coluna, profundidade_atual + 1);
+        if (status != 0) {
+            return status;
         }
         if (nave->pecasColetadas != mapa->total_pecas){
             nave->durabilidadeAtual += nave->retiraDurabilidade;
@@ -74,8 +88,9 @@ bool movimentar(Jogo* jogo, int linha, int coluna, int profundidade_atual) {
         if (nave->pecasColetadas != mapa->total_pecas){
             nave->durabilidadeAtual -= nave->retiraDurabilidade;
         }
-        if (movimentar(jogo, linha + 1, coluna, profundidade_atual + 1)) {
-            return true;
+        int status = movimentar(jogo, linha + 1, coluna, profundidade_atual + 1);
+        if (status != 0) {
+            return status;
         }
         if (nave->pecasColetadas != mapa->total_pecas){
             nave->durabilidadeAtual += nave->retiraDurabilidade;
@@ -88,9 +103,12 @@ bool movimentar(Jogo* jogo, int linha, int coluna, int profundidade_atual) {
         nave->pecasRestantes += 1;
     }
 
-    jogo->tamanho_caminho--;
+    jogo->tamanhoAtual--;
     mapa->visitados[linha][coluna] = false;
-    return false;
+    nave->durabilidadeAtual = durabilidade_anterior;
+    nave->pecasColetadas = pecas_coletadas_anterior;
+    nave->pecasRestantes = pecas_restantes_anterior;
+    return 0;
 }
 
 bool movimentarDireita(int linha, int coluna, Mapa* mapa) {

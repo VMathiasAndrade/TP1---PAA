@@ -1,31 +1,39 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "Jogo.h"
-
+#include "backtracking.h"
 
 Jogo *Criar_Jogo() {
     Jogo *jogo = (Jogo *)malloc(sizeof(Jogo));
-    if (jogo == NULL)
-    {
+    if (jogo == NULL){
         exit(1);
     }
 
-    jogo->mapa_atual = NULL; // Inicializa o mapa como NULL
-    jogo->analise = false; // Inicializa analise como false
+    jogo->mapa_atual = NULL;
+    jogo->caminhoSolucao = NULL;
+    jogo->caminhoFinal = NULL;
+
     return jogo;
 }
 
 void Destruir_Jogo(Jogo *jogo) {
+    if (jogo == NULL) return;
+    
+    int max_passos = jogo->mapa_atual->altura * jogo->mapa_atual->largura;
+    for (int i = 0; i < max_passos; i++) {
+        free(jogo->caminhoSolucao[i]);
+    }
+    free(jogo->caminhoSolucao);
+
+    if (jogo->caminhoFinal != NULL) {
+        for (int i = 0; i < jogo->tamanhoFinal; i++) {
+            free(jogo->caminhoFinal[i]);
+        }
+        free(jogo->caminhoFinal);
+    }
+
     Destruir_Mapa(jogo->mapa_atual);
     free(jogo);
-
-    int max_passos = jogo->mapa_atual->altura * jogo->mapa_atual->largura;
-
-    for (int i = 0; i < max_passos; i++)
-        free(jogo->caminhoSolucao[i]);
-
-    free(jogo->caminhoSolucao);
-    jogo->caminhoSolucao = NULL; 
 }
 
 void Iniciar_Jogo(Jogo *jogo) {
@@ -51,10 +59,13 @@ void Iniciar_Jogo(Jogo *jogo) {
 
         int max_passos = jogo->mapa_atual->altura * jogo->mapa_atual->largura;
         jogo->caminhoSolucao = (int**)malloc(max_passos * sizeof(int*));
+        jogo->caminhoFinal = (int**)malloc(max_passos * sizeof(int*));
         for (int i = 0; i < max_passos; i++) {
-            jogo->caminhoSolucao[i] = (int*)malloc(2 * sizeof(int));
+            jogo->caminhoSolucao[i] = (int*)malloc(4 * sizeof(int));
+            jogo->caminhoFinal[i] = (int*)malloc(4 * sizeof(int));
         }
-        jogo->tamanho_caminho = 0;
+        jogo->tamanhoAtual = 0;
+        jogo->tamanhoFinal = 0;
 
         int linha = jogo->mapa_atual->linhaAtual;
         int coluna = jogo->mapa_atual->colunaAtual;
@@ -66,12 +77,9 @@ void Iniciar_Jogo(Jogo *jogo) {
         printf("Deseja ativar a análise detalhada? (s/n): ");
         scanf(" %c", &analisar);
 
-        jogo->analise = (analisar == 's' || analisar == 'S');
-
-        printf("LÓGICA DE RESOLUÇÃO DO JOGO AQUI\n");
         int status = movimentar(jogo, linha, coluna, profundidade_atual);
 
-        imprimirResultado(1, jogo->chamadas_recursivas, jogo->max_recursao, jogo->analise);
+        imprimirResultado(jogo, status, analisar);
 
         // Libera o mapa atual
         Destruir_Mapa(jogo->mapa_atual);
@@ -84,26 +92,43 @@ void Iniciar_Jogo(Jogo *jogo) {
     } while (continuar_loop == 's' || continuar_loop == 'S');
 }
 
-void imprimirPassos(Mapa* mapa, Nave* nave) {
-    printf("Posição: (%d, %d), Durabilidade: %d, Peças Restantes: %d\n", mapa->linhaAtual, mapa->colunaAtual, nave->durabilidadeAtual, (mapa->total_pecas - nave->pecasColetadas));
-}
-
-void imprimirResultado(int status, int chamadas_recursivas, int max_recursao, bool analise) {
+void imprimirResultado(Jogo* jogo, int status, char analise) {
+    
+    if (jogo->caminhoFinal != NULL){
+        for (int i = 0; i < jogo->tamanhoFinal; i++) {
+            printf("Linha: %d, Coluna: %d; D: %d, pecas restantes: %d\n", 
+                jogo->caminhoFinal[i][0], 
+                jogo->caminhoFinal[i][1], 
+                jogo->caminhoFinal[i][2], 
+                jogo->caminhoFinal[i][3]);
+        }
+    }
+    
     switch (status) {
-    case 0:
-        printf("A tripulação falhou em sua jornada e o expresso espacial foi destruído.\n");
-        break;
-    case 1:
-        printf("Parabéns! A tripulação finalizou sua jornada.\n");
-        break;
-    default:
-        printf("Expresso restaurado, a jornada será finalizada sem mais desafios.\n");
-        break;
+        case 0:
+            printf("\nA tripulação falhou em sua jornada e o expresso espacial foi destruído.\n");
+            break;
+        case 1:
+            printf("\nParabéns! A tripulação finalizou sua jornada.\n");
+            break;
+        default:
+            printf("\nExpresso restaurado, a jornada será finalizada sem mais desafios.\n");
+            break;
     }
 
-    if (analise) {
-        printf("Chamadas Recursivas: %d\n", chamadas_recursivas);
-        printf("Máxima Profundidade de Recursão: %d\n", max_recursao);
+    if (analise == 's' || analise == 'S') {
+        printf("\n--- Análise de Execução ---\n");
+        printf("Chamadas Recursivas: %d\n", jogo->chamadas_recursivas);
+        printf("Máxima Profundidade de Recursão: %d\n", jogo->max_recursao);
     }
 }
 
+void copiarCaminho(Jogo* jogo) {
+    jogo->tamanhoFinal = jogo->tamanhoAtual;
+    for (int i = 0; i < jogo->tamanhoFinal; i++) {
+        jogo->caminhoFinal[i][0] = jogo->caminhoSolucao[i][0];
+        jogo->caminhoFinal[i][1] = jogo->caminhoSolucao[i][1];
+        jogo->caminhoFinal[i][2] = jogo->caminhoSolucao[i][2];
+        jogo->caminhoFinal[i][3] = jogo->caminhoSolucao[i][3];
+    }   
+}

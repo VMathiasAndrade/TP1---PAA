@@ -1,9 +1,10 @@
 #ifndef BACKTRACKING_H
 #define BACKTRACKING_H
 
-#include "Jogo.h"
+struct Jogo;
+struct Mapa;
 
-bool movimentar(Jogo* jogo, int linha, int coluna, int profundidade_atual);
+int movimentar(Jogo* jogo, int linha, int coluna, int profundidade_atual);
 
 bool movimentarDireita(int linha, int coluna, Mapa* mapa);
 bool movimentarEsquerda(int linha, int coluna, Mapa* mapa);

@@ -4,22 +4,22 @@
 
 #include <stdbool.h>
 #include "mapa.h"
-#include "backtracking.h"
 
 typedef struct Jogo {
     Mapa* mapa_atual;
     Nave nave_atual;
-    bool analise; // Indica se a análise detalhada está ativada
     int chamadas_recursivas;
     int max_recursao;
     int** caminhoSolucao;
-    int tamanho_caminho
+    int tamanhoAtual;
+    int** caminhoFinal;
+    int tamanhoFinal;
 } Jogo;
 
 Jogo* Criar_Jogo();
 void Destruir_Jogo(Jogo* jogo);
 void Iniciar_Jogo(Jogo* jogo);
-void imprimirPassos(Mapa* mapa, Nave* nave);
-void imprimirResultado(int status, int chamadas_recursivas, int max_recursao, bool analise);
+void imprimirResultado(Jogo* jogo, int status, char analise);
+void copiarCaminho(Jogo* jogo);
 
 #endif

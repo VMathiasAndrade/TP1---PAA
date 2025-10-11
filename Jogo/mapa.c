@@ -67,6 +67,8 @@ bool Carregar_Mapa_Arquivo(const char* nome_arquivo, Mapa* mapa, Nave* nave) {
         }
     }
 
+    nave->pecasRestantes = mapa->total_pecas;
+
     for (int i = 0; i < mapa->altura; i++) {
         for (int j = 0; j < mapa->largura; j++) {
             mapa->visitados[i][j] = false;
