@@ -25,6 +25,18 @@ int movimentar(Jogo* jogo, int linha, int coluna, int profundidade_atual) {
     jogo->caminhoSolucao[jogo->tamanhoAtual][2] = nave->durabilidadeAtual;
     jogo->caminhoSolucao[jogo->tamanhoAtual][3] = nave->pecasRestantes;
     jogo->tamanhoAtual++;
+
+    if (nave->durabilidadeAtual <= 0) {
+        copiarCaminho(jogo);
+        mapa->visitados[linha][coluna] = false; 
+        jogo->tamanhoAtual--;                  
+        nave->durabilidadeAtual = durabilidade_anterior;
+        nave->pecasColetadas = pecas_coletadas_anterior;
+        nave->pecasRestantes = pecas_restantes_anterior;
+
+        return 0;
+    }
+
     
     if (mapa->grid[linha][coluna] == 'P') {
         nave->pecasColetadas++;
@@ -37,17 +49,7 @@ int movimentar(Jogo* jogo, int linha, int coluna, int profundidade_atual) {
         return (nave->pecasColetadas == mapa->total_pecas) ? 2 : 1;
     }
 
-    if (nave->durabilidadeAtual < 0) {
-        copiarCaminho(jogo);
-        mapa->visitados[linha][coluna] = false; 
-        jogo->tamanhoAtual--;                  
-        nave->durabilidadeAtual = durabilidade_anterior;
-        nave->pecasColetadas = pecas_coletadas_anterior;
-        nave->pecasRestantes = pecas_restantes_anterior;
-
-        return 0;
-    }
-
+    
     if (movimentarDireita(linha, coluna, mapa)) {
         if (nave->pecasColetadas != mapa->total_pecas){
             nave->durabilidadeAtual -= nave->retiraDurabilidade;

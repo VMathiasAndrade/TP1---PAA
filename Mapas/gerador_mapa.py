@@ -108,24 +108,24 @@ def gerar_arquivo_mapa(
 if __name__ == "__main__":
     print("Gerando um mapa de exemplo...")
     gerar_arquivo_mapa(
-        altura=9,
-        largura=15,
-        num_pecas=5,
+        altura=10,
+        largura=17,
+        num_pecas=6,
         nome_arquivo="mapa_teste1.txt"
     )
 
     gerar_arquivo_mapa(
         altura=10,
-        largura=10,
-        num_pecas=7,
+        largura=20,
+        num_pecas=8,
         nome_arquivo="mapa_teste2.txt"
     )
     
     print("\nGerando um mapa maior e mais difícil...")
     gerar_arquivo_mapa(
-        altura=15,
-        largura=31,
-        num_pecas=8,
+        altura=21,
+        largura=11,
+        num_pecas=10,
         durabilidade_base=(40, 50), # Mais apertado
         decremento_base=(5, 5),     # Consistente
         acrescimo_base=(10, 15),    # Menos recompensador
