@@ -14,7 +14,14 @@ int movimentar(Jogo* jogo, int linha, int coluna, int profundidade_atual) {
     
     Mapa* mapa = jogo->mapa_atual;
     Nave* nave = jogo->nave_atual;
-
+    
+    if (nave->durabilidadeAtual <= 0) {
+        if (mapa->grid[linha][coluna] != 'F') {
+            copiarCaminho(jogo);
+            return 0;
+        }
+    }
+    
     int durabilidade_anterior = nave->durabilidadeAtual;
     int pecas_coletadas_anterior = nave->pecasColetadas;
     int pecas_restantes_anterior = nave->pecasRestantes;
@@ -25,83 +32,74 @@ int movimentar(Jogo* jogo, int linha, int coluna, int profundidade_atual) {
     jogo->caminhoSolucao[jogo->tamanhoAtual][2] = nave->durabilidadeAtual;
     jogo->caminhoSolucao[jogo->tamanhoAtual][3] = nave->pecasRestantes;
     jogo->tamanhoAtual++;
-
-    if (nave->durabilidadeAtual <= 0) {
-        copiarCaminho(jogo);
-        mapa->visitados[linha][coluna] = false; 
-        jogo->tamanhoAtual--;                  
-        nave->durabilidadeAtual = durabilidade_anterior;
-        nave->pecasColetadas = pecas_coletadas_anterior;
-        nave->pecasRestantes = pecas_restantes_anterior;
-
-        return 0;
-    }
-
     
     if (mapa->grid[linha][coluna] == 'P') {
         nave->pecasColetadas++;
         nave->durabilidadeAtual += nave->adDurabilidade;
         nave->pecasRestantes--;
     }
-
+    
     if (mapa->grid[linha][coluna] == 'F') {
         copiarCaminho(jogo);
-        return (nave->pecasColetadas == mapa->total_pecas) ? 2 : 1;
+        int status_final = (nave->pecasColetadas == mapa->total_pecas) ? 2 : 1;
+        
+        jogo->tamanhoAtual--;
+        mapa->visitados[linha][coluna] = false;
+        nave->durabilidadeAtual = durabilidade_anterior;
+        nave->pecasColetadas = pecas_coletadas_anterior;
+        nave->pecasRestantes = pecas_restantes_anterior;
+        return status_final;
     }
+
+    int melhorStatus = 0;
     
-    if (movimentarDireita(linha, coluna, mapa)) {
+    if (melhorStatus < 2 && movimentarDireita(linha, coluna, mapa)) {
         if (nave->pecasColetadas != mapa->total_pecas){
             nave->durabilidadeAtual -= nave->retiraDurabilidade;
         }
         int status = movimentar(jogo, linha, coluna + 1, profundidade_atual + 1);
-        if (status != 0) {
-            return status;
+        if (status > melhorStatus) {
+            melhorStatus = status;
         }
         if (nave->pecasColetadas != mapa->total_pecas){
             nave->durabilidadeAtual += nave->retiraDurabilidade;
         }
     }
-    if (movimentarEsquerda(linha, coluna, mapa)) {
+    if (melhorStatus < 2 && movimentarEsquerda(linha, coluna, mapa)) {
         if (nave->pecasColetadas != mapa->total_pecas){
             nave->durabilidadeAtual -= nave->retiraDurabilidade;
         }
         int status = movimentar(jogo, linha, coluna - 1, profundidade_atual + 1);
-        if (status != 0) {
-            return status;
+        if (status > melhorStatus) {
+            melhorStatus = status;
         }
         if (nave->pecasColetadas != mapa->total_pecas){
             nave->durabilidadeAtual += nave->retiraDurabilidade;
         }
     }
-    if (movimentarCima(linha, coluna, mapa)) {
+    if (melhorStatus < 2 && movimentarCima(linha, coluna, mapa)) {
         if (nave->pecasColetadas != mapa->total_pecas){
             nave->durabilidadeAtual -= nave->retiraDurabilidade;
         }
         int status = movimentar(jogo, linha - 1, coluna, profundidade_atual + 1);
-        if (status != 0) {
-            return status;
+        if (status > melhorStatus) {
+            melhorStatus = status;
         }
         if (nave->pecasColetadas != mapa->total_pecas){
             nave->durabilidadeAtual += nave->retiraDurabilidade;
         }
     }
-    if (movimentarBaixo(linha, coluna, mapa)) {
+    if (melhorStatus < 2 && movimentarBaixo(linha, coluna, mapa)) {
         if (nave->pecasColetadas != mapa->total_pecas){
             nave->durabilidadeAtual -= nave->retiraDurabilidade;
         }
         int status = movimentar(jogo, linha + 1, coluna, profundidade_atual + 1);
-        if (status != 0) {
-            return status;
+        if (status > melhorStatus) {
+            melhorStatus = status;
         }
         if (nave->pecasColetadas != mapa->total_pecas){
             nave->durabilidadeAtual += nave->retiraDurabilidade;
         }
-    }
-
-    if (mapa->grid[linha][coluna] == 'P') {
-        nave->pecasColetadas--;
-        nave->durabilidadeAtual -= nave->adDurabilidade;
-        nave->pecasRestantes += 1;
     }
 
     jogo->tamanhoAtual--;
@@ -109,7 +107,8 @@ int movimentar(Jogo* jogo, int linha, int coluna, int profundidade_atual) {
     nave->durabilidadeAtual = durabilidade_anterior;
     nave->pecasColetadas = pecas_coletadas_anterior;
     nave->pecasRestantes = pecas_restantes_anterior;
-    return 0;
+    
+    return melhorStatus;
 }
 
 bool movimentarDireita(int linha, int coluna, Mapa* mapa) {
