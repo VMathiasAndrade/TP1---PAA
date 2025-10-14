@@ -33,12 +33,12 @@ int movimentar(Jogo* jogo, int linha, int coluna, int profundidade_atual) {
         }
     }
 
-    if (nave->durabilidadeAtual < 0) {
+    if (nave->durabilidadeAtual <= 0) {
         if (mapa->grid[linha][coluna] != 'F') {
             if (inimigo_index != -1) {
                 jogo->inimigos[inimigo_index].status = status_anterior_inimigo;
             }
-            copiarCaminho(jogo);
+            
             return 0;
         }
     }
