@@ -5,6 +5,18 @@
 #include <stdbool.h>
 #include "mapa.h"
 
+typedef enum {
+    ATIVO,
+    DERROTADO
+} StatusInimigo;
+
+typedef struct {
+    int linha;
+    int coluna;
+    int dano;
+    StatusInimigo status;
+} Inimigo;
+
 typedef struct Dados {
     int chamadas_recursivas;
     int max_recursao;
@@ -19,6 +31,9 @@ typedef struct Jogo {
     int** caminhoFinal;
     int tamanhoAtual;
     int tamanhoFinal;
+
+    Inimigo* inimigos;
+    int num_inimigos;
 } Jogo;
 
 Jogo* Criar_Jogo();

@@ -52,6 +52,38 @@ void Iniciar_Jogo(Jogo *jogo) {
             continue;
         }
 
+        jogo->num_inimigos = 0;
+        for (int i = 0; i < jogo->mapa_atual->altura; i++) {
+            for (int j = 0; j < jogo->mapa_atual->largura; j++) {
+                if (jogo->mapa_atual->grid[i][j] == 'I') {
+                    jogo->num_inimigos++;
+                }
+            }
+        }
+
+        // 2. Alocar memória para o array de inimigos, se houver algum
+        if (jogo->num_inimigos > 0) {
+            jogo->inimigos = (Inimigo*)malloc(jogo->num_inimigos * sizeof(Inimigo));
+        } else {
+            jogo->inimigos = NULL;
+        }
+
+        // 3. Preencher o array com a posição, status e dano de cada inimigo
+        int inimigo_atual = 0;
+        if (jogo->num_inimigos > 0) {
+            for (int i = 0; i < jogo->mapa_atual->altura; i++) {
+                for (int j = 0; j < jogo->mapa_atual->largura; j++) {
+                    if (jogo->mapa_atual->grid[i][j] == 'I') {
+                        jogo->inimigos[inimigo_atual].linha = i;
+                        jogo->inimigos[inimigo_atual].coluna = j;
+                        jogo->inimigos[inimigo_atual].status = ATIVO;
+                        jogo->inimigos[inimigo_atual].dano = 10; // <<-- Defina o dano padrão aqui
+                        inimigo_atual++;
+                    }
+                }
+            }
+        }
+
         int max_passos = jogo->mapa_atual->altura * jogo->mapa_atual->largura;
         jogo->caminhoSolucao = (int**)malloc(max_passos * sizeof(int*));
         jogo->caminhoFinal = (int**)malloc(max_passos * sizeof(int*));
