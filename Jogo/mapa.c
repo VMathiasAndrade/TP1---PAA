@@ -36,7 +36,7 @@ void Destruir_Mapa(Mapa* mapa) {
 bool Carregar_Mapa_Arquivo(const char* nome_arquivo, Mapa* mapa, Nave* nave) {
     FILE* arquivo = fopen(nome_arquivo, "r");
     if (arquivo == NULL) {
-        printf("Erro: Não foi possível abrir o arquivo '%s'.\n", nome_arquivo);
+        printf("Erro: Nao foi possivel abrir o arquivo '%s'.\n", nome_arquivo);
         return false;
     }
     fscanf(arquivo, "%d %d %d", &nave->durabilidadeAtual, &nave->retiraDurabilidade, &nave->adDurabilidade);

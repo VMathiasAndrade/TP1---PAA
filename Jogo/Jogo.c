@@ -41,13 +41,12 @@ void Iniciar_Jogo(Jogo *jogo) {
         scanf("%99s", nome_arquivo);
 
         jogo->mapa_atual = Criar_Mapa();
-        // Tenta carregar o mapa do arquivo
         if (!Carregar_Mapa_Arquivo(nome_arquivo, jogo->mapa_atual, jogo->nave_atual))
         {
             printf("Deseja tentar carregar outro mapa? (s/n): ");
             scanf(" %c", &continuar_loop);
             printf("\n");
-            Destruir_Mapa(jogo->mapa_atual); // Limpa o mapa que falhou ao carregar
+            Destruir_Mapa(jogo->mapa_atual); 
             jogo->mapa_atual = NULL;
             continue;
         }
@@ -61,14 +60,14 @@ void Iniciar_Jogo(Jogo *jogo) {
             }
         }
 
-        // 2. Alocar memória para o array de inimigos, se houver algum
+       
         if (jogo->num_inimigos > 0) {
             jogo->inimigos = (Inimigo*)malloc(jogo->num_inimigos * sizeof(Inimigo));
         } else {
             jogo->inimigos = NULL;
         }
 
-        // 3. Preencher o array com a posição, status e dano de cada inimigo
+        
         int inimigo_atual = 0;
         if (jogo->num_inimigos > 0) {
             for (int i = 0; i < jogo->mapa_atual->altura; i++) {
@@ -77,7 +76,7 @@ void Iniciar_Jogo(Jogo *jogo) {
                         jogo->inimigos[inimigo_atual].linha = i;
                         jogo->inimigos[inimigo_atual].coluna = j;
                         jogo->inimigos[inimigo_atual].status = ATIVO;
-                        jogo->inimigos[inimigo_atual].dano = 10; // <<-- Defina o dano padrão aqui
+                        jogo->inimigos[inimigo_atual].dano = 10; 
                         inimigo_atual++;
                     }
                 }
@@ -101,7 +100,7 @@ void Iniciar_Jogo(Jogo *jogo) {
         jogo->dados->max_recursao = 0;
         char analisar;
 
-        printf("Deseja ativar a análise detalhada? (s/n): ");
+        printf("Deseja ativar a analise detalhada? (s/n): ");
         scanf(" %c", &analisar);
 
         int status = movimentar(jogo, linha, coluna, profundidade_atual);
@@ -148,20 +147,20 @@ void imprimirResultado(Jogo* jogo, int status, char analise) {
     
     switch (status) {
         case 0:
-            printf("\nA tripulação falhou em sua jornada e o expresso espacial foi destruído.\n");
+            printf("\nA tripulacao falhou em sua jornada e o expresso espacial foi destruido.\n");
             break;
         case 1:
-            printf("\nParabéns! A tripulação finalizou sua jornada.\n");
+            printf("\nParabens! A tripulacao finalizou sua jornada.\n");
             break;
         default:
-            printf("\nExpresso restaurado, a jornada será finalizada sem mais desafios.\n");
+            printf("\nExpresso restaurado, a jornada sera finalizada sem mais desafios.\n");
             break;
     }
 
     if (analise == 's' || analise == 'S') {
-        printf("\n--- Análise de Execução ---\n");
+        printf("\n--- Analise de Execucao ---\n");
         printf("Chamadas Recursivas: %d\n", jogo->dados->chamadas_recursivas);
-        printf("Máxima Profundidade de Recursão: %d\n", jogo->dados->max_recursao);
+        printf("Maxima Profundidade de Recursao: %d\n", jogo->dados->max_recursao);
     }
 }
 
